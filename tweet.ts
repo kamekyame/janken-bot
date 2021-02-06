@@ -60,15 +60,15 @@ function tweetCB(res: StreamTweet) {
       else if (result === Result.Win) return "の勝ち！";
     };
 
-    let username = () => {
+    const username = () => {
       if (res.includes?.users && res.includes.users.length > 0) {
         return "@" + res.includes.users[0].username;
       }
     };
 
-    if (!username) {
+    if (!username()) {
     } else {
-      const status = `${username}
+      const status = `${username()}
     あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
     
     あなた${resultText()}`;
