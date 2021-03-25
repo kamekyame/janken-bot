@@ -1,6 +1,6 @@
-import "https://deno.land/x/dotenv/load.ts";
+import { config } from "https://deno.land/x/dotenv/mod.ts";
 
-import { getBearerToken } from "../twitter_api_client/auth/oauth2.ts";
+import { getBearerToken } from "https://kamekyame.github.io/twitter_api_client/auth/oauth2.ts";
 import {
   changeRules,
   connectStream,
@@ -15,25 +15,22 @@ import {
 import { getHands } from "./analysis.ts";
 import { Hand, judge, Result } from "./janken.ts";
 import { hands, rndHand } from "./janken.ts";
+import { Users } from "./user.ts";
+
+const users = new Users();
 
 const receiveUsername = "SuzuTomo2001";
 
-const consumerKey = Deno.env.get("API_KEY");
-const consumerSecret = Deno.env.get("API_SECRETKEY");
-const token = Deno.env.get("TOKEN");
-const tokenSecret = Deno.env.get("TOKEN_SECRET");
-if (!consumerKey || !consumerSecret || !token || !tokenSecret) {
-  console.error("undefinded env key");
-  Deno.exit(-1);
-}
+const env = config({ safe: true });
+
 const auth = {
-  consumerKey: consumerKey,
-  consumerSecret: consumerSecret,
-  token: token,
-  tokenSecret: tokenSecret,
+  consumerKey: env["API_KEY"],
+  consumerSecret: env["API_SECRETKEY"],
+  token: env["TOKEN"],
+  tokenSecret: env["TOKEN_SECRET"],
 };
 
-const bearerToken = await getBearerToken(consumerKey, consumerSecret);
+const bearerToken = await getBearerToken(auth.consumerKey, auth.consumerSecret);
 
 const tag = "jankenBOT";
 const value = `to:${receiveUsername} -from:${receiveUsername}`;
@@ -48,32 +45,40 @@ async function checkRule() {
 
 function tweetCB(res: StreamTweet) {
   if (!res.matching_rules.some((e) => e.tag === tag)) return;
+  const getUser = () => {
+    if (res.includes?.users && res.includes.users.length > 0) {
+      return res.includes.users[0];
+    }
+  };
+  const user = getUser();
 
-  //console.log(res);
-  for (const hand of getHands(res.data.text)) {
-    const botHand = rndHand();
+  //console.log(res, user);
+  if (user) {
+    for (const hand of getHands(res.data.text)) {
+      // じゃんけん
+      const botHand = rndHand();
+      const result = judge(hand.hand, botHand);
 
-    const result = judge(hand.hand, botHand);
-    const resultText = () => {
-      if (result === Result.Draw) return "とあいこ！";
-      else if (result === Result.Lose) return "の負け！";
-      else if (result === Result.Win) return "の勝ち！";
-    };
+      // ユーザ情報更新
+      users.update(user.id, result);
 
-    const username = () => {
-      if (res.includes?.users && res.includes.users.length > 0) {
-        return "@" + res.includes.users[0].username;
-      }
-    };
-
-    if (!username()) {
-    } else {
-      const status = `${username()}
+      // ツイート返信
+      const resultText = () => {
+        if (result === Result.Draw) return "とあいこ！";
+        else if (result === Result.Lose) return "の負け！";
+        else if (result === Result.Win) return "の勝ち！";
+      };
+      const status = `@${user.username}
     あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
     
-    あなた${resultText()}`;
-
+    あなた${resultText()}
+    
+    またじゃんけんしようね(o^―^o)
+    #すずともBot`;
       //statusUpdate(auth, { status, in_reply_to_status_id: res.data.id });
+
+      // ログ記録
+
       console.log(result);
     }
   }
