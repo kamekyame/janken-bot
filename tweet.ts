@@ -55,42 +55,56 @@ async function tweetCB(res: StreamTweet) {
 
   //console.log(res, user);
   if (user) {
+    let count = 0;
     for (const hand of getHands(res.data.text)) {
-      // じゃんけん
-      const botHand = rndHand();
-      const result = judge(hand.hand, botHand);
+      count++;
 
-      // ユーザ情報更新
-      users.update(user.id, result);
+      let status = `@${user.username}`;
+      let logText = `[${new Date().toISOString()}] `;
+      if (count > 10) {
+        status += `
+手が足りないんだけど…
+https://qiita.com/SuzuTomo2001/items/c3f986ba80d58d66beee`;
+        logText += "手が足りないよぉ…";
+      } else {
+        // じゃんけん
+        const botHand = rndHand();
+        const result = judge(hand.hand, botHand);
 
-      // ツイート返信
-      const resultText = () => {
-        if (result === Result.Draw) return "とあいこ！";
-        else if (result === Result.Lose) return "の負け！";
-        else if (result === Result.Win) return "の勝ち！";
-      };
-      const status = `
-@${user.username}
+        // ユーザ情報更新
+        users.update(user.id, result);
+
+        // ツイート返信
+        const resultText = () => {
+          if (result === Result.Draw) return "とあいこ！";
+          else if (result === Result.Lose) return "の負け！";
+          else if (result === Result.Win) return "の勝ち！";
+        };
+        status += `
 あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
 
 あなた${resultText()}
 
-またじゃんけんしようね(o^―^o)
-#すずともBot`;
+またじゃんけんしようね(o^―^o)`;
+
+        // ログ記録
+        logText += `${hands[hand.type][botHand]} vs ${
+          hands[hand.type][hand.hand]
+        }(@${user.username})`;
+      }
+
+      status += `\n#すずともBot`;
       const tweetRes = await statusUpdate(auth, {
         status,
         in_reply_to_status_id: res.data.id,
       });
+      logText += `\ttweetId:${tweetRes.id}`;
 
-      // ログ記録
-      const logText = `[${new Date().toISOString()}] ${
-        hands[hand.type][botHand]
-      } vs ${
-        hands[hand.type][hand.hand]
-      }(@${user.username})\ttweetId:${tweetRes.id}`;
       console.log(logText);
 
       TweetLogFileOp.add(tweetRes);
+
+      if (count > 10) break;
     }
   }
 }
