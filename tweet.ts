@@ -16,6 +16,7 @@ import { getHands } from "./analysis.ts";
 import { Hand, judge, Result } from "./janken.ts";
 import { hands, rndHand } from "./janken.ts";
 import { Users } from "./user.ts";
+import { TweetLogFileOp } from "./file.ts";
 
 const users = new Users();
 
@@ -43,7 +44,7 @@ async function checkRule() {
   }
 }
 
-function tweetCB(res: StreamTweet) {
+async function tweetCB(res: StreamTweet) {
   if (!res.matching_rules.some((e) => e.tag === tag)) return;
   const getUser = () => {
     if (res.includes?.users && res.includes.users.length > 0) {
@@ -68,18 +69,28 @@ function tweetCB(res: StreamTweet) {
         else if (result === Result.Lose) return "の負け！";
         else if (result === Result.Win) return "の勝ち！";
       };
-      const status = `@${user.username}
-    あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
-    
-    あなた${resultText()}
-    
-    またじゃんけんしようね(o^―^o)
-    #すずともBot`;
-      //statusUpdate(auth, { status, in_reply_to_status_id: res.data.id });
+      const status = `
+@${user.username}
+あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
+
+あなた${resultText()}
+
+またじゃんけんしようね(o^―^o)
+#すずともBot`;
+      const tweetRes = await statusUpdate(auth, {
+        status,
+        in_reply_to_status_id: res.data.id,
+      });
 
       // ログ記録
+      const logText = `[${new Date().toISOString()}] ${
+        hands[hand.type][botHand]
+      } vs ${
+        hands[hand.type][hand.hand]
+      }(@${user.username})\ttweetId:${tweetRes.id}`;
+      console.log(logText);
 
-      console.log(result);
+      TweetLogFileOp.add(tweetRes);
     }
   }
 }

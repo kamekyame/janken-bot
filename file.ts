@@ -41,3 +41,14 @@ export class UserFileOp {
     return new Array<User>();
   }
 }
+
+export class TweetLogFileOp {
+  private static path = resolve("tweet_log.log");
+
+  static add(tweetRes: any) {
+    const text = `[${new Date().toISOString()}] ${JSON.stringify(tweetRes)}\n`;
+    Deno.writeTextFileSync(this.path, text, {
+      append: true,
+    });
+  }
+}
