@@ -71,7 +71,7 @@ https://qiita.com/SuzuTomo2001/items/c3f986ba80d58d66beee`;
         const result = judge(hand.hand, botHand);
 
         // ユーザ情報更新
-        users.update(user.id, result);
+        const r = users.update(user.id, result);
 
         // ツイート返信
         const resultText = () => {
@@ -83,6 +83,8 @@ https://qiita.com/SuzuTomo2001/items/c3f986ba80d58d66beee`;
 あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
 
 あなた${resultText()}
+
+成績：${r[2]}勝${r[1]}敗${r[0]}分
 
 またじゃんけんしようね(o^―^o)`;
 

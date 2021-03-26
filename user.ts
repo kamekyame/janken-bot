@@ -17,6 +17,7 @@ export class User {
 
   update(result: Result) {
     this.result[result]++;
+    return this.result;
   }
 
   getResult(resultType: Result = -1) {
@@ -60,7 +61,8 @@ export class Users {
       user = new User(userId);
       this.users.push(user);
     }
-    user.update(result);
+    const r = user.update(result);
     this.save();
+    return r;
   }
 }
