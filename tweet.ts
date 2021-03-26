@@ -29,7 +29,6 @@ const env = config({
   safe: true,
   example: resolve("./.sqlenv.example"),
 });
-console.log(env);
 
 const auth = {
   consumerKey: env["API_KEY"],
@@ -52,7 +51,6 @@ async function checkRule() {
 }
 
 async function tweetCB(res: StreamTweet) {
-  console.log(res);
   if (!res.matching_rules.some((e) => e.tag === tag)) return;
   const getUser = () => {
     if (res.includes?.users && res.includes.users.length > 0) {
