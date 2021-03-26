@@ -49,7 +49,7 @@ export class Users {
 
   constructor() {
     this.users = this.read();
-    console.log(this.users);
+    //console.log(this.users);
   }
 
   read = () => UserFileOp.read();

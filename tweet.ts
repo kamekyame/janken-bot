@@ -1,5 +1,8 @@
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 
+import { pathResolver } from "https://kamekyame.github.io/deno_tools/path/mod.ts";
+const resolve = pathResolver(import.meta);
+
 import { getBearerToken } from "https://kamekyame.github.io/twitter_api_client/auth/oauth2.ts";
 import {
   changeRules,
@@ -21,7 +24,11 @@ const users = new Users();
 
 const receiveUsername = "SuzuTomo2001";
 
-const env = config({ safe: true });
+const env = config({
+  path: resolve("./.env"),
+  safe: true,
+  example: resolve("./.sqlenv.example"),
+});
 
 const auth = {
   consumerKey: env["API_KEY"],
