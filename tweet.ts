@@ -9,11 +9,10 @@ import {
 } from "https://kamekyame.github.io/twitter_api_client/api_v2/tweets/filtered_stream.ts";
 import {
   statusUpdate,
-  UpdateParam,
 } from "https://kamekyame.github.io/twitter_api_client/api_v1/tweets/update.ts";
 
 import { getHands } from "./analysis.ts";
-import { Hand, judge, Result } from "./janken.ts";
+import { judge, Result } from "./janken.ts";
 import { hands, rndHand } from "./janken.ts";
 import { Users } from "./user.ts";
 import { TweetLogFileOp } from "./file.ts";
