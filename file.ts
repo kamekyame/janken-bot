@@ -1,5 +1,5 @@
-import { pathResolver } from "https://kamekyame.github.io/deno_tools/path/mod.ts";
-const resolve = pathResolver(import.meta);
+//import { pathResolver } from "https://kamekyame.github.io/deno_tools/path/mod.ts";
+//const resolve = pathResolver(import.meta);
 
 import { User } from "./user.ts";
 
@@ -11,8 +11,8 @@ const readJsonFileSync = (path: string | URL) => {
 };
 
 export class UserFileOp {
-  private static dir = resolve("./data");
-  private static path = UserFileOp.dir + "/users.json";
+  private static dir = "./data";
+  private static path = UserFileOp.dir + "/janken-users.json";
 
   static staticConstructor = (() => {
     Deno.mkdirSync(UserFileOp.dir, { recursive: true });
@@ -43,7 +43,12 @@ export class UserFileOp {
 }
 
 export class TweetLogFileOp {
-  private static path = resolve("tweet_log.log");
+  private static dir = "./log";
+  private static path = TweetLogFileOp.dir + "/janken-tweet.log";
+
+  static staticConstructor = (() => {
+    Deno.mkdirSync(TweetLogFileOp.dir, { recursive: true });
+  })();
 
   static add(tweetRes: any) {
     const text = `[${new Date().toISOString()}] ${JSON.stringify(tweetRes)}\n`;

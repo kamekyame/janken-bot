@@ -8,7 +8,7 @@ const resolve = pathResolver(import.meta);
 import { User } from "../user.ts";
 
 const env = config({
-  path: resolve("../.env"),
+  path: "./.env",
   safe: true,
   example: resolve("./.sqlenv.example"),
 });
