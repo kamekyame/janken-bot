@@ -21,8 +21,8 @@ export class Janken {
 
   private receiveUsername = "SuzuTomo2001";
 
-  private readonly tag = "jankenBOT";
-  private readonly value =
+  private readonly tag = "replyBOT";
+  private readonly value = () =>
     `to:${this.receiveUsername} -from:${this.receiveUsername}`;
 
   private users: Users;
@@ -39,12 +39,13 @@ export class Janken {
 
   public async checkRule() {
     const rules = await getRules(this.bearerToken);
-    if (!rules.data?.some((d) => d.tag === this.tag)) {
+    if (!rules.data?.some((d) => d.value === this.value())) {
       const aRules = await changeRules(this.bearerToken, {
-        add: [{ value: this.value, tag: this.tag }],
+        add: [{ value: this.value(), tag: this.tag }],
       });
     }
   }
+
   public async callback(res: StreamTweet) {
     if (!res.matching_rules.some((e) => e.tag === this.tag)) return;
     const getUser = () => {
@@ -82,13 +83,13 @@ export class Janken {
             else if (result === Result.Win) return "の勝ち！";
           };
           status += `
-  あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
+あなた(${hands[hand.type][hand.hand]}) vs (${hands[hand.type][botHand]})すずとも
   
-  あなた${resultText()}
+あなた${resultText()}
   
-  成績：${r[2]}勝${r[1]}敗${r[0]}分
+成績：${r[2]}勝${r[1]}敗${r[0]}分
   
-  またじゃんけんしようね(o^―^o)`;
+またじゃんけんしようね(o^―^o)`;
 
           // ログ記録
           logText += `${hands[hand.type][botHand]} vs ${

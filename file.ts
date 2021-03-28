@@ -1,6 +1,3 @@
-//import { pathResolver } from "https://kamekyame.github.io/deno_tools/path/mod.ts";
-//const resolve = pathResolver(import.meta);
-
 import { User } from "./user.ts";
 
 const writeJsonFileSync = (path: string | URL, json: any) => {
@@ -36,7 +33,7 @@ export class UserFileOp {
       const jsonUsers = readJsonFileSync(this.path);
       if (Array.isArray(jsonUsers)) return jsonUsers.map((e) => new User(e));
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
     return new Array<User>();
   }
