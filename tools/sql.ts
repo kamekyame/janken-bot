@@ -9,9 +9,12 @@ import { User } from "../user.ts";
 
 const env = config({
   path: "./.env",
-  safe: true,
-  example: resolve("./.sqlenv.example"),
 });
+
+if (!(env["SQL_HOSTNAME"] && env["SQL_USERNAME"] && env["SQL_PASSWORD"])) {
+  console.log("必要な環境変数がありません。");
+  Deno.exit();
+}
 
 const client = await new Client().connect({
   hostname: env["SQL_HOSTNAME"],
@@ -39,7 +42,7 @@ if (dbData instanceof Array) {
   });
 
   if (!UserFileOp.sqlDataSave(users)) {
-    console.log("既にuser.jsonが存在しています。削除してから再度実行してください。");
+    console.log("既にjankne-users.jsonが存在しています。削除してから再度実行してください。");
   }
 }
 
